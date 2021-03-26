@@ -1,8 +1,9 @@
 import os
-
+import time
 players = ['X', 'O']
 ROWS = COLS = 3
 field_to_play = []
+unavailable_fields = []
 
 for i in range(ROWS * COLS):
     one_field = [['1#', '4#', '7#'],
@@ -62,7 +63,6 @@ class Board:
 class Game:
     def __init__(self):
         self.game_field = Board
-        self.unavailable_fields = []
         self.winned_fields = [['#', '#', '#'],
                               ['#', '#', '#'],
                               ['#', '#', '#']]
@@ -75,7 +75,7 @@ class Game:
     def field_winner(self, player):
         global field_to_play
         global game_winner
-        unavailable_fields = self.unavailable_fields
+        global unavailable_fields
         count = 0
         for field in field_to_play:
             check_x = []
@@ -90,19 +90,46 @@ class Game:
             for i in row:
                 if len(set(i)) == 1:
                     unavailable_fields.append(count)
+                    game_winner[count] = str(set(i))
 
             collumns = list(zip(*row))
             for i in collumns:
                 if len(set(i)) == 1:
                     unavailable_fields.append(count)
+                    game_winner[count] = str(set(i))
 
             if list(set(check_x[0::4])) == 1:
                 unavailable_fields.append(count)
+                game_winner[count] = str(set(i))
 
             if list(set(check_x[-3::-2][:-1])) == 1:
                 unavailable_fields.append(count)
+                game_winner[count] = str(set(i))
 
             count += 1
+
+    def game_over(self):
+        global game_winner
+
+        if len(set(game_winner[:3])) == 1:
+            return True
+        elif len(set(game_winner[3:6])) == 1:
+            return True
+        elif len(set(game_winner[6:9])) == 1:
+            return True
+        elif len(set(game_winner[::3])) == 1:
+            return True
+        elif len(set(game_winner[1::3])) == 1:
+            return True
+        elif len(set(game_winner[2::3])) == 1:
+            return True
+        elif len(set(game_winner[::4])) == 1:
+            return True
+        elif len(set(game_winner[-3::-2][:-1])) == 1:
+            return True
+        else:
+            return False
+
 
     def choose_your_field(self):
         game_field = self.game_field()
@@ -115,7 +142,7 @@ class Game:
     def play(self):
         global field_to_play
         global players
-        unavailable_fields = self.unavailable_fields
+        global unavailable_fields
         current_field = self.choose_your_field
         row_names = self.row_names
         game_ON = True
@@ -125,29 +152,41 @@ class Game:
             for player in players:
                 game_field = self.game_field()
                 game_field.render_board()
-                turn = input()
-                row_name, column = turn
-                row_index = row_names[row_name]
-                column_index = int(column) - 1
-                if field_number in unavailable_fields:
-                    print('Please choose another field!')
-                    choose_another_field = True
-                    while choose_another_field:
-                        current_field()
-                        field_number = current_field()
-                        if field_number not in unavailable_fields:
-                            choose_another_field = False
-                else:
-                    field_to_play[field_number][row_index][column_index] = player
 
-                    if (row_name == 'A'):
-                        field_number = column_index
-                    if (row_name == 'B'):
-                        field_number = column_index + 3
-                    if (row_name == 'C'):
-                        field_number = column_index + 6
+                good_turn = True
+                while good_turn:
+                    turn = input()
+                    row_name, column = turn
+                    row_index = row_names[row_name]
+                    column_index = int(column) - 1
+                    if (field_to_play[field_number][row_index][column_index] == players[0]) or\
+                       (field_to_play[field_number][row_index][column_index] == players[1]):
+                        print('Wrong Turn!')
+                    else:
+                        if field_number in unavailable_fields:
+                            print('Please choose another field!')
+                            choose_another_field = True
+                            while choose_another_field:
+                                current_field()
+                                field_number = current_field()
+                                if field_number not in unavailable_fields:
+                                    choose_another_field = False
+                        else:
+                            field_to_play[field_number][row_index][column_index] = player
 
-                self.game_winner(player)
+                            if (row_name == 'A'):
+                                field_number = column_index
+                            if (row_name == 'B'):
+                                field_number = column_index + 3
+                            if (row_name == 'C'):
+                                field_number = column_index + 6
+                        good_turn = False
+
+                self.field_winner(player)
+                if self.game_over():
+                    print("GAME OVER!!!")
+                    time.sleep(10)
+                    game_ON = False
                 os.system('clear')
 
 if __name__ == '__main__':
