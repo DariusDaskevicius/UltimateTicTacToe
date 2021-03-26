@@ -14,6 +14,9 @@ for i in range(ROWS * COLS):
 game_winner = ['1#', '4#', '7#', '2#', '5#', '8#', '3#', '6#', '9#']
 
 
+
+# DFS -> depth first search:
+
 # class Hasher:
 #     def __init__(self, row):
 #         self.row = row
@@ -135,7 +138,15 @@ class Game:
         game_field = self.game_field()
         game_field.render_board()
         print('Choose field!')
-        current_field = int(input())
+        while True:
+            try:
+                current_field = int(input())
+                if current_field not in range(1, 10):
+                    raise ValueError()
+            except ValueError:
+                print("Incorrect field. Please choose a field from 1-9")
+            else:
+                break
         current_field -= 1
         return current_field
 
