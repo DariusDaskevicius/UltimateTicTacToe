@@ -1,9 +1,11 @@
 import os
 import time
-players = ['X', 'O']
 ROWS = COLS = 3
 field_to_play = []
 unavailable_fields = []
+
+PLAYER_X = 'X'
+PLAYER_O = 'O'
 
 for i in range(ROWS * COLS):
     one_field = [['1#', '4#', '7#'],
@@ -13,59 +15,110 @@ for i in range(ROWS * COLS):
 
 game_winner = ['1#', '4#', '7#', '2#', '5#', '8#', '3#', '6#', '9#']
 
-
-
-# DFS -> depth first search:
-
-# class Hasher:
-#     def __init__(self, row):
-#         self.row = row
-#
-#     def __hash__(self):
-#         return hash(''.join(self.row))
-#
-#     def __eq__(self, other):
-#         return hash(self) == hash(other)
-
-class Board:
+class SingleBoard:
     def __init__(self):
-        self.field = []
-        self.first_f = 0
-        self.last_f = 3
-        self.field_count = 0
-        self.field_markup = 'ABC'
+        self.position = list(range(9)) * 9
+        self.available_moves = list(range(9))
 
-    def render_board(self):
-        global field_to_play
-        print('--1----2----3-------1----2--- 3-------1----2----3----')
-        for i in range(0, 3):
-            for field in field_to_play[self.first_f:self.last_f]:
-                if field[0]:
-                    print(f'{field[0]} |', end=' ')
-            print(self.field_markup[self.field_count], end=' ')
-            print('\n')
-            self.field_count += 1
+    def make_move(self, index, player):
+        if index not in self.available_moves:
+            print(f"Invalid move: {index}. Available moves: {self.available_moves}")
+            return
 
-            for field in field_to_play[self.first_f:self.last_f]:
-                if field[1]:
-                    print(f'{field[1]} |', end=' ')
-            print(self.field_markup[self.field_count], end=' ')
-            print('\n')
-            self.field_count += 1
+        self.position[index] = player
+        self.available_moves.remove(index)
 
-            for field in field_to_play[self.first_f:self.last_f]:
-                if field[2]:
-                    print(f'{field[2]} |', end=' ')
-            print(self.field_markup[self.field_count], end=' ')
-            self.field_count -= 2
+        print(f"Made move: {index}. Position is: {self.position}")
 
-            self.first_f += 3
-            self.last_f += 3
-            print('\n--------------------------------------------------------')
+    def __str__(self):
+        output = ""
+
+        for i in range(3):
+            row = self.position[i*3: i*3 + 3]
+            row_strings = [str(elem) for elem in row]
+
+            output += " ".join(row_strings)
+            output += "\n"
+
+        return output
+
+class MultiBoard:
+    def __init__(self):
+        self.boards = [SingleBoard() for i in range(9)]
+
+    def change(self, *args):
+        self.boards[args[0]].make_move(args[1], PLAYER_X)
+
+    def __str__(self):
+        output = "".join(str(board) for board in self.boards)
+        output_rows = output.split("\n")
+        output = ''
+        for k in range(3):
+            for j in range(3):
+                row = output_rows[(k*9)+j:(k*9) + (j+9):3]
+                output += " | ".join(row)
+                output += "\n"
+
+            if k == 0 or k == 1 and k > 0:
+                output += "-" * 21
+                output += "\n"
+
+        return output
+
+print('step 1')
+board = MultiBoard()
+board.change(0, 0)
+board.change(1, 1)
+board.change(2, 2)
+board.change(3, 3)
+board.change(4, 4)
+board.change(5, 5)
+board.change(6, 6)
+board.change(7, 7)
+board.change(8, 8)
+print('step 2')
+print(board)
+print('step 3')
+
+# class Board:
+#     def __init__(self):
+#         self.field = []
+#         self.first_f = 0
+#         self.last_f = 3
+#         self.field_count = 0
+#         self.field_markup = 'ABC'
+#
+#     def render_board(self):
+#         global field_to_play
+#         print('--1----2----3-------1----2--- 3-------1----2----3----')
+#         for i in range(0, 3):
+#             for field in field_to_play[self.first_f:self.last_f]:
+#                 if field[0]:
+#                     print(f'{field[0]} |', end=' ')
+#             print(self.field_markup[self.field_count], end=' ')
+#             print('\n')
+#             self.field_count += 1
+#
+#             for field in field_to_play[self.first_f:self.last_f]:
+#                 if field[1]:
+#                     print(f'{field[1]} |', end=' ')
+#             print(self.field_markup[self.field_count], end=' ')
+#             print('\n')
+#             self.field_count += 1
+#
+#             for field in field_to_play[self.first_f:self.last_f]:
+#                 if field[2]:
+#                     print(f'{field[2]} |', end=' ')
+#             print(self.field_markup[self.field_count], end=' ')
+#             self.field_count -= 2
+#
+#             self.first_f += 3
+#             self.last_f += 3
+#             print('\n--------------------------------------------------------')
 
 class Game:
     def __init__(self):
-        self.game_field = Board
+        self.game_field = MultiBoard()
         self.winned_fields = [['#', '#', '#'],
                               ['#', '#', '#'],
                               ['#', '#', '#']]
@@ -138,15 +191,7 @@ class Game:
         game_field = self.game_field()
         game_field.render_board()
         print('Choose field!')
-        while True:
-            try:
-                current_field = int(input())
-                if current_field not in range(1, 10):
-                    raise ValueError()
-            except ValueError:
-                print("Incorrect field. Please choose a field from 1-9")
-            else:
-                break
+        current_field = int(input())
         current_field -= 1
         return current_field
 
@@ -200,6 +245,6 @@ class Game:
                     game_ON = False
                 os.system('clear')
 
-if __name__ == '__main__':
-    start = Game()
-    start.play()
+# if __name__ == '__main__':
+#     start = Game()
+#     start.play()
