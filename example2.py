@@ -46,10 +46,57 @@ class LevelMonitor
 
 # parse this source and come up with a way to iterate over it.
 
-for code_element in elements:
-  print(code_element.name)
+# for code_element in elements:
+#   print(code_element.name)
+
+from pprint import pprint
 
 
+class Node:
+    def __init__(self, name, ctype):
+        self.name = name
+        self.ctype = ctype
+        self.parent: Node = None
+        self.children: List[Node] = []
+
+    def __str__(self):
+        # self -> pointer to instance of class Node
+        # self.__class__ -> pointer to class Node
+        # self.__class__.__name__ -> pointer to class variable __name__ : Node.__name__
+
+        # "Node(name, ctype, line_no)"
+        return f"{self.__class__.__name__}(name={self.name}, ctype={self.ctype})"
+
+    def __repr__(self):
+        return self.__str__()
+
+
+root_node = Node(name="root", ctype="namespace")
+child_1 = Node(name="child_1", ctype="class")
+child_2 = Node(name="child_2", ctype="enum")
+
+root_node.children.append(child_1)
+root_node.children.append(child_2)
+
+child_1.parent = root_node
+child_2.parent = root_node
+
+
+for child in root_node:
+    print(child)
+
+    # child_1
+    # child_2
+
+print(root_node["child_1"])  # => Node(name="child_1", ctype="class")
+
+
+# root_node = Node(name="root", ctype="namespace")
+# root_node = Node(name="root", ctype="namespace")
+
+
+
+# pprint(CppWrapper.elem())
 """
 cleaning
 -> FlowMonitor
