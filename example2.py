@@ -1,8 +1,10 @@
 source_code1 = """
 #include "platform/Types.h"
 #include "cleaning/FlowMonitorCycleState.h"
+
 namespace cleaning
 {
+
 class FlowMonitor
 {
     enum FlowMonitoringStates
@@ -13,22 +15,27 @@ class FlowMonitor
         STATE_FLOW_MONITORING_ERROR_INACTIVE = 3,
         STATE_FLOW_MONITORING_ACTIVE_INIT = 4,
     };
+
     UI16 floatSwitchTimeoutCounter_; /*!< Counter for float switch timeout managing */
     UI8 balancingChamberStateMemory1_; /*!< is 1 when preceding Balancing Chamber state_ was balancing or filling state_ and 0 else */
     UI8 balancingChamberStateMemory2_; /*!< is 1 when preceding Balancing Chamber state_ was balancing or filling state_ and 0 else */
 };
+
 class HydraulicsMonitor
 {
     SI16 timeoutCounter_; /*!< Counter for timeout */
 };
+
 }
 """
 
 source_code2 = """
 #include "platform/Types.h"
 #include "cleaning/FlowMonitorCycleState.h"
+
 namespace cleaning
 {
+
 class LevelMonitor
 {
     UI8 is On; /*!< is 1 when preceding Balancing Chamber state_ was balancing or filling state_ and 0 else */
@@ -49,7 +56,7 @@ class Node:
     def __init__(self, name, ctype):
         self.name = name
         self.ctype = ctype
-        # self.parent: Node = None
+        self.parent: Node = None
         self.children: List[Node] = []
 
     def __str__(self):
@@ -63,18 +70,8 @@ class Node:
     def __repr__(self):
         return self.__str__()
 
-    def __getitem__(self):
-        return self
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        return self
-
 
 root_node = Node(name="root", ctype="namespace")
-# root_node = Node(name="clsobj", type="class")
 child_1 = Node(name="child_1", ctype="class")
 child_2 = Node(name="child_2", ctype="enum")
 
@@ -84,15 +81,14 @@ root_node.children.append(child_2)
 child_1.parent = root_node
 child_2.parent = root_node
 
-# print(root_node[0])
+
 for child in root_node:
     print(child)
-    # exit()
-#
-#     # child_1
-#     # child_2
 
-# print(root_node["child_1"])  # => Node(name="child_1", ctype="class")
+    # child_1
+    # child_2
+
+print(root_node["child_1"])  # => Node(name="child_1", ctype="class")
 
 
 # root_node = Node(name="root", ctype="namespace")
@@ -108,6 +104,7 @@ cleaning
 ---> floatSwitchTimeoutCounter_
 ---> balancingChamberStateMemory1_
 ---> balancingChamberStateMemory2_
+
 -> HydraulicsMonitor
 ---> timeoutCounter_
 """
